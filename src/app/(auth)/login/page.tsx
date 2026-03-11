@@ -47,6 +47,26 @@ export default function LoginPage() {
     setMode("login");
   }
 
+  async function handleForgotPassword() {
+    setMessage("");
+
+    if (!email) {
+      setMessage("Digite seu email primeiro.");
+      return;
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: "https://lab-os-labos.vercel.app/set-password",
+    });
+
+    if (error) {
+      setMessage(`Erro: ${error.message}`);
+      return;
+    }
+
+    setMessage("Enviamos um link para redefinir sua senha.");
+  }
+
   return (
     <main
       style={{
@@ -154,6 +174,23 @@ export default function LoginPage() {
             {mode === "login" ? "Entrar" : "Criar conta"}
           </button>
         </form>
+
+        {mode === "login" && (
+          <button
+            type="button"
+            onClick={handleForgotPassword}
+            style={{
+              marginTop: 12,
+              background: "transparent",
+              border: "none",
+              color: "#0F2460",
+              cursor: "pointer",
+              padding: 0,
+            }}
+          >
+            Esqueci minha senha
+          </button>
+        )}
 
         {message && <p style={{ marginTop: 16 }}>{message}</p>}
       </div>
