@@ -1,30 +1,50 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
   const supabase = createClient();
+  const router = useRouter();
+
+  const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  async function handleLogin(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    setMessage("");
 
-    setMessage("Enviando link de acesso...");
+    if (mode === "login") {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
 
-    const { error } = await supabase.auth.signInWithOtp({
+      if (error) {
+        setMessage(`Erro: ${error.message}`);
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+      return;
+    }
+
+    const { error } = await supabase.auth.signUp({
       email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
+      password,
     });
 
     if (error) {
       setMessage(`Erro: ${error.message}`);
-    } else {
-      setMessage("Verifique seu email e clique no link mágico.");
+      return;
     }
+
+    setMessage("Conta criada com sucesso. Agora faça login.");
+    setMode("login");
   }
 
   return (
@@ -49,11 +69,45 @@ export default function LoginPage() {
         }}
       >
         <h1 style={{ marginBottom: 12 }}>Entrar no LabOS</h1>
-        <p style={{ color: "#4b5563" }}>
-          Use seu email para receber um link mágico de acesso.
+        <p style={{ color: "#4b5563", marginBottom: 20 }}>
+          {mode === "login"
+            ? "Entre com email e senha."
+            : "Crie sua conta para acessar o sistema."}
         </p>
 
-        <form onSubmit={handleLogin} style={{ marginTop: 20 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          <button
+            type="button"
+            onClick={() => setMode("login")}
+            style={{
+              padding: 10,
+              borderRadius: 10,
+              border: "1px solid #d1d5db",
+              background: mode === "login" ? "#0F2460" : "white",
+              color: mode === "login" ? "white" : "#111827",
+              cursor: "pointer",
+            }}
+          >
+            Login
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setMode("signup")}
+            style={{
+              padding: 10,
+              borderRadius: 10,
+              border: "1px solid #d1d5db",
+              background: mode === "signup" ? "#0F2460" : "white",
+              color: mode === "signup" ? "white" : "#111827",
+              cursor: "pointer",
+            }}
+          >
+            Criar conta
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit}>
           <input
             type="email"
             required
@@ -65,13 +119,28 @@ export default function LoginPage() {
               width: "100%",
               borderRadius: 10,
               border: "1px solid #d1d5db",
+              marginBottom: 12,
+            }}
+          />
+
+          <input
+            type="password"
+            required
+            placeholder="Sua senha"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            style={{
+              padding: 12,
+              width: "100%",
+              borderRadius: 10,
+              border: "1px solid #d1d5db",
+              marginBottom: 16,
             }}
           />
 
           <button
             type="submit"
             style={{
-              marginTop: 16,
               padding: 12,
               width: "100%",
               borderRadius: 10,
@@ -79,9 +148,10 @@ export default function LoginPage() {
               background: "#0F2460",
               color: "white",
               fontWeight: 600,
+              cursor: "pointer",
             }}
           >
-            Entrar
+            {mode === "login" ? "Entrar" : "Criar conta"}
           </button>
         </form>
 

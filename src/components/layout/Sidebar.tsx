@@ -1,51 +1,26 @@
 import Link from "next/link";
-import LogoutButton from "./LogoutButton";
 
 export default function Sidebar() {
   return (
     <aside
       style={{
-        width: 240,
-        minHeight: "100vh",
-        background: "#0F2460",
+        width: 220,
+        background: "#0f172a",
         color: "white",
         padding: 20,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
+        minHeight: "100vh"
       }}
     >
-      <div>
-        <h2 style={{ marginBottom: 24 }}>LabOS</h2>
+      <h2 style={{ marginBottom: 20 }}>LabOS</h2>
 
-        <nav style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-          <Link href="/dashboard" style={{ color: "white", textDecoration: "none" }}>
-            Dashboard
-          </Link>
-
-          <Link href="/agenda" style={{ color: "white", textDecoration: "none" }}>
-            Agenda
-          </Link>
-
-          <Link href="/equipments" style={{ color: "white", textDecoration: "none" }}>
-            Equipamentos
-          </Link>
-
-          <Link href="/reagents" style={{ color: "white", textDecoration: "none" }}>
-            Reagentes
-          </Link>
-
-          <Link href="/maintenance" style={{ color: "white", textDecoration: "none" }}>
-            Manutenção
-          </Link>
-
-          <Link href="/admin" style={{ color: "white", textDecoration: "none" }}>
-            Admin
-          </Link>
-        </nav>
-      </div>
-
-      <LogoutButton />
+      <nav style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <Link href="/dashboard">Dashboard</Link>
+        <Link href="/agenda">Agenda</Link>
+        <Link href="/equipments">Equipamentos</Link>
+        <Link href="/reagents">Reagentes</Link>
+        <Link href="/maintenance">Manutenção</Link>
+        <Link href="/admin">Admin</Link>
+      </nav>
     </aside>
   );
 }
