@@ -4,13 +4,14 @@ import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-export default function SetPasswordPage() {
+export default function PasswordSettingsPage() {
   const supabase = createClient();
   const router = useRouter();
 
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -26,20 +27,21 @@ export default function SetPasswordPage() {
       return;
     }
 
+    setLoading(true);
+
     const { error } = await supabase.auth.updateUser({
       password,
     });
+
+    setLoading(false);
 
     if (error) {
       setMessage(`Erro: ${error.message}`);
       return;
     }
 
-    setMessage("Senha definida com sucesso. Redirecionando...");
-    setTimeout(() => {
-      router.push("/dashboard");
-      router.refresh();
-    }, 1000);
+    setMessage("Senha alterada com sucesso.");
+    router.refresh();
   }
 
   return (
@@ -63,9 +65,9 @@ export default function SetPasswordPage() {
           boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
         }}
       >
-        <h1 style={{ marginBottom: 12 }}>Definir senha</h1>
+        <h1 style={{ marginBottom: 12 }}>Alterar senha</h1>
         <p style={{ color: "#4b5563", marginBottom: 20 }}>
-          Entre uma última vez com magic link e defina sua senha para acessar direto depois.
+          Atualize sua senha de acesso à sua conta.
         </p>
 
         <form onSubmit={handleSubmit}>
@@ -87,7 +89,7 @@ export default function SetPasswordPage() {
           <input
             type="password"
             required
-            placeholder="Confirmar senha"
+            placeholder="Confirmar nova senha"
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             style={{
@@ -101,6 +103,7 @@ export default function SetPasswordPage() {
 
           <button
             type="submit"
+            disabled={loading}
             style={{
               padding: 12,
               width: "100%",
@@ -110,9 +113,10 @@ export default function SetPasswordPage() {
               color: "white",
               fontWeight: 600,
               cursor: "pointer",
+              opacity: loading ? 0.7 : 1,
             }}
           >
-            Salvar senha
+            {loading ? "Salvando..." : "Alterar senha"}
           </button>
         </form>
 
